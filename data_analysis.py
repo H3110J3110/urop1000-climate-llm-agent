@@ -21,26 +21,26 @@ import deepagents.backends.filesystem as b_fs
 import deepagents.backends.state as b_st
 import deepagents.backends.sandbox as b_sb
 
-# 1. Clear the built-in image detector list entirely
-if hasattr(df, "IMAGE_EXTENSIONS"):
-    df.IMAGE_EXTENSIONS = frozenset()
+# # 1. Clear the built-in image detector list entirely
+# if hasattr(df, "IMAGE_EXTENSIONS"):
+#     df.IMAGE_EXTENSIONS = frozenset()
 
-# 2. Build an interceptor shield for the file backends
-def secure_backend_read(original_read_fn):
-    def wrapped_read(self, *args, **kwargs):
-        # Extract the file path from arguments safely
-        path = kwargs.get("path") or kwargs.get("file_path") or (args[0] if args else None)
-        if path and any(str(path).lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".gif", ".webp"]):
-            return "Error: Image file viewing is completely disabled. Please process text, code, or data files only."
-        return original_read_fn(self, *args, **kwargs)
-    return wrapped_read
+# # 2. Build an interceptor shield for the file backends
+# def secure_backend_read(original_read_fn):
+#     def wrapped_read(self, *args, **kwargs):
+#         # Extract the file path from arguments safely
+#         path = kwargs.get("path") or kwargs.get("file_path") or (args[0] if args else None)
+#         if path and any(str(path).lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".gif", ".webp"]):
+#             return "Error: Image file viewing is completely disabled. Please process text, code, or data files only."
+#         return original_read_fn(self, *args, **kwargs)
+#     return wrapped_read
 
-# 3. Apply the shield to all virtual file system backends
-for backend_module in [b_fs, b_st, b_sb]:
-    for attr_name in dir(backend_module):
-        cls = getattr(backend_module, attr_name)
-        if isinstance(cls, type) and hasattr(cls, "read") and attr_name != "BaseBackend":
-            cls.read = secure_backend_read(cls.read)
+# # 3. Apply the shield to all virtual file system backends
+# for backend_module in [b_fs, b_st, b_sb]:
+#     for attr_name in dir(backend_module):
+#         cls = getattr(backend_module, attr_name)
+#         if isinstance(cls, type) and hasattr(cls, "read") and attr_name != "BaseBackend":
+#             cls.read = secure_backend_read(cls.read)
 
 
 # Openrouter validation bypass patch code
@@ -173,7 +173,7 @@ def independent_llm_agent(discord_loop):
     
     
     agent = create_deep_agent(
-        model="openrouter:deepseek-v4-flash",
+        model="openrouter:qwen/qwen3.6-flash",
         tools=[send_message],
         backend=backend,
         system_prompt="You are a data analyst.",
@@ -197,7 +197,7 @@ def independent_llm_agent(discord_loop):
     input_message = {
         "role": "user",
         "content": (
-            "Analyze /home/daytona/data/sales_data.csv in the current dir and generate a beautiful plot. When finished, send your analysis to discord using the tool send_message."
+            "Analyze /home/daytona/data/sales_data.csv in the current dir and generate a beautiful plot. Check your generated plot and when finished, send your analysis to discord using the tool send_message."
         ),
     }
     
