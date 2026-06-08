@@ -12,6 +12,37 @@ import os
 import getpass
 from langchain_daytona import DaytonaSandbox
 
+import io
+from io import BytesIO
+
+# Block reading images
+import deepagents.middleware.filesystem as df
+import deepagents.backends.filesystem as b_fs
+import deepagents.backends.state as b_st
+import deepagents.backends.sandbox as b_sb
+
+# 1. Clear the built-in image detector list entirely
+if hasattr(df, "IMAGE_EXTENSIONS"):
+    df.IMAGE_EXTENSIONS = frozenset()
+
+# 2. Build an interceptor shield for the file backends
+def secure_backend_read(original_read_fn):
+    def wrapped_read(self, *args, **kwargs):
+        # Extract the file path from arguments safely
+        path = kwargs.get("path") or kwargs.get("file_path") or (args[0] if args else None)
+        if path and any(str(path).lower().endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".gif", ".webp"]):
+            return "Error: Image file viewing is completely disabled. Please process text, code, or data files only."
+        return original_read_fn(self, *args, **kwargs)
+    return wrapped_read
+
+# 3. Apply the shield to all virtual file system backends
+for backend_module in [b_fs, b_st, b_sb]:
+    for attr_name in dir(backend_module):
+        cls = getattr(backend_module, attr_name)
+        if isinstance(cls, type) and hasattr(cls, "read") and attr_name != "BaseBackend":
+            cls.read = secure_backend_read(cls.read)
+
+
 # Openrouter validation bypass patch code
 original_send = openrouter.chat.Chat.send
 
@@ -50,21 +81,23 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 CHANNEL_ID = 1511902321427091558
 
+
+if not os.getenv("DAYTONA_KEY"):
+    os.environ["DAYTONA_KEY"] = getpass.getpass("Enter your sandbox token: ")
+
+config = DaytonaConfig(api_key=os.environ["DAYTONA_KEY"]) # Replace with your API key
+
+# Initialize the Daytona client
+daytona = Daytona(config)
+
+sandbox = daytona.create()
+backend = DaytonaSandbox(sandbox=sandbox)
+
+result = backend.execute("echo ready")
+print(result)
+# ExecuteResponse(output='ready', exit_code=0, ...)
+
 def independent_llm_agent(discord_loop):
-    if not os.getenv("DAYTONA_KEY"):
-        os.environ["DAYTONA_KEY"] = getpass.getpass("Enter your sandbox token: ")
-    
-    config = DaytonaConfig(api_key=os.environ["DAYTONA_KEY"]) # Replace with your API key
-    
-    # Initialize the Daytona client
-    daytona = Daytona(config)
-    
-    sandbox = daytona.create()
-    backend = DaytonaSandbox(sandbox=sandbox)
-    
-    result = backend.execute("echo ready")
-    print(result)
-    # ExecuteResponse(output='ready', exit_code=0, ...)
     
     import csv
     import io
@@ -197,16 +230,34 @@ async def send_discord_message(text,type):
             print("Invalid Channel")
     else:
         print("file "+text+ " is sent")
-        # response = backend.download_files([text])
+        try:
+            response = backend.download_files([text])
+            print(f"Image downloaded: ${response[0].path}")
+        except Exception as e:
+            print(f"Failed to download image: {e}")
         # if response.error:
-        #   await channel.send(f"Failed to download image: {response.error}")
-        #   return
-        # image_stream = io.BytesIO(response.content)
-        # discord_file = discord.File(fp=image_stream, filename="downloaded_image.png")
+        #     await channel.send("Failed to download image:")
+        #     return "Failed to download image"
+        try:
+            image_stream = io.BytesIO(response[0].content)
+            print(f"Content streamed")
+        except Exception as e:
+            print(f"Failed to stream: {e}")
         _, _, after = text.rpartition('/')
+        try:
+            discord_file = discord.File(fp=image_stream, filename=after)
+            print(f"Discord file saved")
+        except Exception as e:
+            print(f"Failed to save: {e}")
+
         if channel:
-            # print(type(discord_file))
-            await channel.send(file=discord.File(after))
+            print("bird1")
+            try:
+                msg = await channel.send(file=discord_file)
+                print(f"Success! Message ID: ${msg.id}")
+            except Exception as e:
+                print(f"Failed to send: {e}")
+            print("bird2")
         else:
             print("Invalid Channel")
     return "successful discord sent"
