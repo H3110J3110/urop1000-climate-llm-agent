@@ -60,9 +60,20 @@ This project explores agentic LLM workflows for climate science applications. Th
 - Complete Tutorial 3 with fallback approach
 - Complete middleware customization exercises (pending supervisor-provided materials)
 - Practice Git branching and PR workflow for documentation/collaboration
-
----
 </details>
+
+
+<details>
+<summary><b>Week 2 (May XX – May XX)</b></summary>
+
+<br>
+
+*[Update after this week]*
+
+</details>
+---
+
+
 
 
 ## Setup (TBD)
