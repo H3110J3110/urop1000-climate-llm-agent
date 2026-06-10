@@ -25,7 +25,6 @@ This project explores agentic LLM workflows for climate science applications. Th
 **Next:**
 - Complete Tutorial 3 with image generation model
 - Middleware customization exercises
-- Begin project-specific agent development
 
 ---
 
