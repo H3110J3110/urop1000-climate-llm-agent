@@ -32,11 +32,11 @@ This project explores agentic LLM workflows for climate science applications. Th
 ## Weekly Log
 
 <details>
-<summary><b>Week 1 (May XX – May XX)</b></summary>
+<summary><b>Week 1 (Jun 3 to Jun 10)</b></summary>
 
 <br>
 
-### Week 1 (June 3)
+### Week 1
 
 **Readings completed:**
 - [LangChain Agents](https://docs.langchain.com/oss/python/langchain/agents) – Core concepts of agent architecture
