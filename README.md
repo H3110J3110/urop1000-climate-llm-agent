@@ -49,7 +49,7 @@ This project explores agentic LLM workflows for climate science applications. Th
 - Middleware = hooks for logging, rate limiting, error handling, etc.
 
 **Tutorial(s) completed:**
-1. [Data analysis](https://docs.langchain.com/oss/python/deepagents/data-analysis) – replaced Slack with Discord, built custom tool wrapper
+1. [Data analysis](https://docs.langchain.com/oss/python/deepagents/data-analysis) – replaced Slack with Discord, built custom tool wrapper [code](data_analysis.py)
 2. [Deep research](https://docs.langchain.com/oss/python/deepagents/deep-research) – chains, prompts, output parsers
 
 **Blockers encountered:**
