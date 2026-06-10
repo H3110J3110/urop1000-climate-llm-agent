@@ -31,6 +31,11 @@ This project explores agentic LLM workflows for climate science applications. Th
 
 ## Weekly Log
 
+<details>
+<summary><b>Week 1 (May XX – May XX)</b></summary>
+
+<br>
+
 ### Week 1 (June 3)
 
 **Readings completed:**
@@ -58,6 +63,8 @@ This project explores agentic LLM workflows for climate science applications. Th
 - Practice Git branching and PR workflow for documentation/collaboration
 
 ---
+</details>
+
 
 ## Setup (TBD)
 
