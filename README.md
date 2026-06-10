@@ -31,7 +31,7 @@ This project explores agentic LLM workflows for climate science applications. Th
 ## Weekly Log
 
 <details>
-<summary><b>Week 1 (3/6/26 to 10/6/26)</b></summary>
+<summary><b>Week 1 (3/6 to 10/6)</b></summary>
 
 <br>
 
@@ -64,7 +64,7 @@ This project explores agentic LLM workflows for climate science applications. Th
 
 
 <details>
-<summary><b>Week 2 (May XX – May XX)</b></summary>
+<summary><b>Week 2 (10/6 to 17/6)</b></summary>
 
 <br>
 
