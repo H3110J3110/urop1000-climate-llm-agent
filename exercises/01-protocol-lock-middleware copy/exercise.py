@@ -70,21 +70,88 @@ class ProtocolLockMiddleware(AgentMiddleware):
         request: ToolCallRequest,
         handler: Callable[[ToolCallRequest], ToolMessage],
     ) -> ToolMessage:
-        # TODO (core):
-        #   1) read request.tool_call -> name / args / id
-        #   2) if name == "submit_fgoals_run" and its study_design_id is NOT in
-        #      STORE["locked_studies"]:
-        #         return a ToolMessage(content=<actionable error>, tool_call_id=<id>)
-        #         WITHOUT calling handler  (this rejects the call)
-        #   3) otherwise: return handler(request)   (this allows the call)
-        #
-        # TODO (stretch): audit logging; parameter-bounds check for
-        #   propose_parameter_set / submit_fgoals_run using BOUNDS.
-        raise NotImplementedError("Implement wrap_tool_call")
-
-    # TODO (stretch): implement wrap_model_call to inject which studies are
-    #   locked into the system prompt via request.override(system_message=...).
-# ============================================================================
+        # Read the tool call details
+        tool_call = request.tool_call
+        tool_name = tool_call.get("name", "")
+        tool_id = tool_call.get("id", "")
+        args = tool_call.get("args", {})
+        
+        # Core: Check if this is submit_fgoals_run
+        if tool_name == "submit_fgoals_run":
+            study_id = args.get("study_design_id")
+            
+            # Reject if study is not locked
+            if study_id not in STORE["locked_studies"]:
+                return ToolMessage(
+                    content=(
+                        f"Cannot submit FGOALS run for study {study_id}: "
+                        f"study must be locked first. Call lock_study_config('{study_id}') "
+                        f"before submitting. Currently locked: {list(STORE['locked_studies'])}"
+                    ),
+                    tool_call_id=tool_id
+                )
+        
+        # Stretch: Parameter bounds check for propose_parameter_set
+        if tool_name == "propose_parameter_set":
+            study_id = args.get("study_design_id")
+            parameters = args.get("parameters", {})
+            
+            # Check each parameter against BOUNDS
+            violations = []
+            for param, value in parameters.items():
+                if param in BOUNDS:
+                    lower, upper = BOUNDS[param]
+                    if not (lower <= value <= upper):
+                        violations.append(f"{param}={value} outside [{lower}, {upper}]")
+            
+            if violations:
+                return ToolMessage(
+                    content=(
+                        f"Cannot propose parameters for {study_id}: {', '.join(violations)}. "
+                        f"Valid bounds: {BOUNDS}"
+                    ),
+                    tool_call_id=tool_id
+                )
+        
+        # Stretch: Parameter bounds for submit_fgoals_run too
+        if tool_name == "submit_fgoals_run":
+            parameters = args.get("parameter_set", {})
+            violations = []
+            for param, value in parameters.items():
+                if param in BOUNDS:
+                    lower, upper = BOUNDS[param]
+                    if not (lower <= value <= upper):
+                        violations.append(f"{param}={value} outside [{lower}, {upper}]")
+            
+            if violations:
+                return ToolMessage(
+                    content=(
+                        f"Cannot submit run for {study_id}: {', '.join(violations)}. "
+                        f"Valid bounds: {BOUNDS}"
+                    ),
+                    tool_call_id=tool_id
+                )
+        
+        # Allow all other calls (or locked + in-bounds ones)
+        return handler(request)
+    def wrap_model_call(self, request, handler):
+        """Inject locked studies info into system prompt."""
+        # Get current system message or use default
+        system_msg = request.system_message or "You are a FGOALS-UFS research assistant."
+        
+        # Add locked studies context
+        locked_studies = list(STORE["locked_studies"])
+        if locked_studies:
+            locked_context = f"\n\nCurrently locked studies: {', '.join(locked_studies)}"
+        else:
+            locked_context = "\n\nNo studies are currently locked."
+        
+        # Also add parameter bounds
+        bounds_context = f"\n\nParameter bounds: {BOUNDS}"
+        
+        # Override with enhanced system message
+        request.override(system_message=system_msg + locked_context + bounds_context)
+        return handler(request)
 
 
 agent = create_deep_agent(
