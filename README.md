@@ -15,27 +15,24 @@ This project explores agentic LLM workflows for climate science applications. Th
 | Week | Focus | Status |
 |------|-------|--------|
 | 1 | Onboarding: Agents, DeepAgents, Middleware | Completed |
-| 2 | More LangChain tutorials + customization exercises | In progress |
+| 2 | More LangChain tutorials + customization exercises | Completed |
 
 **Completed:**
 - ✅ Tutorial 1: Custom tool integration (Slack/ Discord replacement)
 - ✅ Tutorial 2: LangChain basics
-- ⏳ Tutorial 3: Image generation (blocked on Gemini API – fallback in progress)
+- ✅ Tutorial 3: Content generation
+- ✅ Middleware Customization Exercise
 
 **Next:**
-- Complete Tutorial 3 with image generation model
-- Middleware customization exercises
 
 ---
 
 ## Weekly Log
 
 <details>
-<summary><b>Week 1 (03/06 to 10/06)</b></summary>
+<summary><b>Week 1-2 (03/06 to 17/06)</b></summary>
 
 <br>
-
-### Week 1
 
 **Readings completed:**
 - [LangChain Agents](https://docs.langchain.com/oss/python/langchain/agents) – Core concepts of agent architecture
@@ -49,8 +46,9 @@ This project explores agentic LLM workflows for climate science applications. Th
 - Middleware = hooks for logging, rate limiting, error handling, etc.
 
 **Tutorial(s) completed:**
-1. [Data analysis](https://docs.langchain.com/oss/python/deepagents/data-analysis) – replaced Slack with Discord, built custom tool wrapper [code](data_analysis.py)
-2. [Deep research](https://docs.langchain.com/oss/python/deepagents/deep-research) – chains, prompts, output parsers
+1. [Data analysis](https://docs.langchain.com/oss/python/deepagents/data-analysis) – replaced Slack with Discord, built custom tool wrapper [code](exercises/discord_data_analysis_agent.py)
+2. [Deep research](https://docs.langchain.com/oss/python/deepagents/deep-research) – chains, prompts, output parsers [code](exercises/deep_research.py)
+3. [Content Builder](https://docs.langchain.com/oss/python/deepagents/content-builder) - content (text + image) generation [code](exercises/content_builder.py)
 
 **Blockers encountered:**
 - Tutorial 3 requires Gemini API for image generation – currently region-blocked
@@ -64,7 +62,7 @@ This project explores agentic LLM workflows for climate science applications. Th
 
 
 <details>
-<summary><b>Week 2 (10/06 to 17/06)</b></summary>
+<summary><b>Week 3 (17/06 tp 24/06)</b></summary>
 
 <br>
 
